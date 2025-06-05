@@ -11,7 +11,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'youtube-to-dfpwm = youtube_to_dfpwm:main',
+            'ytd = your_module:main',
         ],
     },
     python_requires='>=3.7',
