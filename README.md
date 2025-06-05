@@ -31,14 +31,6 @@ python --version
 You can check your version in a terminal or command prompt:
 ffmpeg -version
 
-### ✅ 3. Python dependencies
-
-Before running the script, install the required Python packages (yt-dlp):
-pip install -r requirements.txt
-
-You can check your version in a terminal or command prompt:
-yt-dlp --version
-
 ## ▶️ How to use
 1. Install the package by running:<br>
   `pip install git+https://github.com/IceliosGit/youtube_to_dfpwm.git`
