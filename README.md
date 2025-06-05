@@ -39,6 +39,17 @@ pip install -r requirements.txt
 You can check your version in a terminal or command prompt:
 yt-dlp --version
 
+## ▶️ How to use
+1. Open your terminal or command prompt.
+2. Install the package by running:
+pip install git+https://github.com/IceliosGit/youtube_to_dfpwm.git
+3. Run the program with the command:
+youtube-to-dfpwm
+4. When prompted, enter the YouTube URL, song name, or video title.
+5. The program will download the audio, convert it to DFPWM format, and then open the folder containing the downloaded files.
+
+
+
 
 
 

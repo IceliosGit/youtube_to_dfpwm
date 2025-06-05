@@ -2,6 +2,7 @@
 
 import os
 import subprocess
+import platform
 from yt_dlp import YoutubeDL
 
 def main():
@@ -57,6 +58,14 @@ def main():
         try:
             ydl.download([query])
             print(f"\nDownload complete! Saved in: {output_dir}")
+
+            # Open the folder in the system file explorer
+            if platform.system() == "Windows":
+                os.startfile(output_dir)
+            elif platform.system() == "Darwin":  # macOS
+                subprocess.run(["open", output_dir])
+            else:  # Linux and others
+                subprocess.run(["xdg-open", output_dir])
 
             # Find the mp3 file just downloaded:
             mp3_files = [f for f in os.listdir(output_dir) if f.lower().endswith('.mp3')]

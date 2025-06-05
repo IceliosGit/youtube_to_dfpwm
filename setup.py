@@ -4,9 +4,8 @@ setup(
     name='youtube_to_dfpwm',
     version='1.0.0',
     description='Download YouTube audio and convert it to DFPWM format',
-    author='Your Name',
-    author_email='your.email@example.com',
-    py_modules=['youtube_to_dfpwm'],  # your script filename without .py
+    author='IceliosGit',
+    py_modules=['youtube_to_dfpwm'],
     install_requires=[
         'yt-dlp>=2024.3.10',
     ],
