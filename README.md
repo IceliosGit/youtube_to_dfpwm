@@ -2,6 +2,10 @@
 
 A simple Python script that downloads a song or video from YouTube and converts it to the `.dfpwm` audio format — great for Minecraft mods like ComputerCraft, OpenComputers, or custom audio playback systems.
 
+```bash
+ytd [OPTIONS] QUERY [QUERY...]
+ytd config [--directory DIR] [--auto-open true|false]
+```
 ---
 
 ## 📦 Features
@@ -53,17 +57,25 @@ ytd "song name" "https://www.youtube.com/watch?v=dQw4w9WgXcQ&ab_channel=RickAstl
 ytd "https://youtu.be/example" "song name" "another title"
 ```
 
-### Default output folder  
-Downloads are saved to a folder named `downloaded_dfpwm` next to the script.
+### 📂 Output Directory Behavior
 
-### Change the default folder  
-Set a custom default download folder by running:  
+By default, downloads are saved in a folder named `downloaded_dfpwm` located next to the script. After a successful conversion, the folder opens automatically unless disabled.
+
+#### 🔧 Change the default download folder
+Set a permanent custom output folder:
 ```bash
-ytd config -d "your/custom/path"
+ytd config --directory "/your/custom/path"
 ```
 
-### Download to a specific folder (without changing default)  
-Use the `-d` option with the `ytd` command:  
+#### 📥 Download to a specific folder (without changing the default)
+Override the output folder for a single use:
 ```bash
-ytd "song name" -d "your/custom/path"
+ytd "song name" --directory "/temporary/path"
+```
+
+#### 🚫 Disable or ✅ enable automatic folder opening
+Toggle whether the folder opens after each download:
+```bash
+ytd config --auto-open false   # Disable
+ytd config --auto-open true    # Enable
 ```

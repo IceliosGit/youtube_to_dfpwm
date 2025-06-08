@@ -1,1 +1,2 @@
-C:\Users\anton\Downloads
+directory=C:\Users\anton\Documents\Python\DFPWM\youtube-to-dfpwm\downloaded_dfpwm
+auto_open=true

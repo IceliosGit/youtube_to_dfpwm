@@ -10,17 +10,28 @@ from yt_dlp import YoutubeDL
 
 CONFIG_FILE = os.path.join(os.path.dirname(__file__), "config.txt") #create a config.txt in the folder where your script is
 
-def load_output_dir():
+def load_config():
+    config = {
+        "directory": os.path.join(os.path.dirname(__file__), 'downloaded_dfpwm'),
+        "auto_open": "true"
+    }
     if os.path.exists(CONFIG_FILE):
         with open(CONFIG_FILE, 'r', encoding='utf-8') as f:
-            path = f.read().strip()
-            if path:
-                return path
-    return os.path.join(os.path.dirname(__file__), 'downloaded_dfpwm')
+            for line in f:
+                key, _, value = line.partition("=")
+                if key and value:
+                    config[key.strip()] = value.strip()
+    return config
 
-def save_output_dir(path):
+def save_config(directory=None, auto_open=None):
+    config = load_config()
+    if directory is not None:
+        config["directory"] = directory.strip()
+    if auto_open is not None:
+        config["auto_open"] = auto_open.strip().lower()
     with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
-        f.write(path.strip())
+        for key, value in config.items():
+            f.write(f"{key}={value}\n")
 
 def open_folder(path):
     try:
@@ -85,6 +96,12 @@ def create_arg_parser():
         help='Set a new default output directory'
     )
 
+    config_parser.add_argument(
+    '-a', '--auto-open',
+    choices=['true', 'false'],
+    help='Enable (true) or disable (false) automatic folder opening after download'
+)
+
     return parser
 
 def main():
@@ -102,22 +119,24 @@ def main():
     args = parser.parse_args()
 
     if args.command == 'config':
-        if args.directory:
-            path = os.path.abspath(args.directory)
-            save_output_dir(path)
-            print(f"Default directory set to: {path}")
+        if args.directory or args.auto_open:
+            save_config(directory=args.directory, auto_open=args.auto_open)
+            print("Configuration updated:")
+            if args.directory:
+                print(f"- Default directory set to: {os.path.abspath(args.directory)}")
+            if args.auto_open:
+                print(f"- Auto-open after download: {args.auto_open}")
         else:
-            current = load_output_dir()
-            print(f"Current default directory: {current}")
+            config = load_config()
+            print(f"Current default directory: {config['directory']}")
+            print(f"Auto-open after download: {config['auto_open']}")
         return
 
     if args.command == 'download' or args.command is None:
         queries = args.query  # list of queries/URLs
 
-        if args.directory:
-            output_dir = os.path.abspath(args.directory)
-        else:
-            output_dir = load_output_dir()
+        config = load_config()
+        output_dir = os.path.abspath(args.directory) if args.directory else config["directory"]
 
         os.makedirs(output_dir, exist_ok=True)
 
@@ -154,7 +173,8 @@ def main():
                 except Exception as e:
                     print(f"Error during download of '{query}': {e}")
 
-        open_folder(output_dir)
+        if config.get("auto_open", "true") == "true":
+            open_folder(output_dir)
 
 
 
