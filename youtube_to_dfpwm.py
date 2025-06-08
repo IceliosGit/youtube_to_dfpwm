@@ -95,15 +95,15 @@ def main():
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit(0)
-    
+
     if args.command == 'config':
         if args.directory:
             path = os.path.abspath(args.directory)
             save_output_dir(path)
-            print(f"✅ Default directory set to: {path}")
+            print(f"Default directory set to: {path}")
         else:
             current = load_output_dir()
-            print(f"📁 Current default directory: {current}")
+            print(f"Current default directory: {current}")
         return
 
     # Handle download
@@ -133,19 +133,19 @@ def main():
         with YoutubeDL(ydl_opts) as ydl:
             try:
                 ydl.download([query])
-                print(f"\n✅ Download complete! Saved in: {output_dir}")
+                print(f"\nDownload complete! Saved in: {output_dir}")
                 open_folder(output_dir)
 
                 mp3_files = [f for f in os.listdir(output_dir) if f.lower().endswith('.mp3')]
                 if not mp3_files:
-                    print("⚠️ No mp3 files found to convert.")
+                    print("No mp3 files found to convert.")
                 else:
                     mp3_files.sort(key=lambda f: os.path.getmtime(os.path.join(output_dir, f)), reverse=True)
                     newest_mp3 = os.path.join(output_dir, mp3_files[0])
                     convert_to_dfpwm(newest_mp3)
 
             except Exception as e:
-                print(f"❌ Error during download: {e}")
+                print(f"Error during download: {e}")
 
 
 if __name__ == '__main__':
