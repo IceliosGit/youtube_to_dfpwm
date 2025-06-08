@@ -89,23 +89,17 @@ def create_arg_parser():
 
 def main():
     parser = create_arg_parser()
-    args, unknown = parser.parse_known_args()
 
-    if args.command is None:
-        if unknown:
-            args.command = 'download'
-            args.query = unknown
-            args.directory = None
-        else:
-            parser.print_help()
-            sys.exit(0)
-
-
-    
     # If no arguments at all, show help and exit
     if len(sys.argv) == 1:
         parser.print_help()
         sys.exit(0)
+
+    # If first arg is not a known subcommand, treat as download
+    if sys.argv[1] not in ('download', 'config'):
+        sys.argv.insert(1, 'download')
+
+    args = parser.parse_args()
 
     if args.command == 'config':
         if args.directory:
@@ -117,9 +111,8 @@ def main():
             print(f"Current default directory: {current}")
         return
 
-    # Handle download
     if args.command == 'download' or args.command is None:
-        query = ' '.join(args.query)
+        queries = args.query  # list of queries/URLs
 
         if args.directory:
             output_dir = os.path.abspath(args.directory)
@@ -138,25 +131,31 @@ def main():
                 'preferredquality': '192',
             }],
             'quiet': False,
-            'default_search': 'ytsearch1',
+            'default_search': 'ytsearch',
         }
 
         with YoutubeDL(ydl_opts) as ydl:
-            try:
-                ydl.download([query])
-                print(f"\nDownload complete! Saved in: {output_dir}")
-                open_folder(output_dir)
+            for query in queries:
+                try:
+                    if not query.startswith(("http://", "https://", "ytsearch:", "ytsearch1:")):
+                        query = f"ytsearch:{query}"
+                    ydl.download([query])
+                    print(f"\nDownload complete! Saved in: {output_dir}")
 
-                mp3_files = [f for f in os.listdir(output_dir) if f.lower().endswith('.mp3')]
-                if not mp3_files:
-                    print("No mp3 files found to convert.")
-                else:
-                    mp3_files.sort(key=lambda f: os.path.getmtime(os.path.join(output_dir, f)), reverse=True)
-                    newest_mp3 = os.path.join(output_dir, mp3_files[0])
-                    convert_to_dfpwm(newest_mp3)
+                    # Convert newest mp3 after each download
+                    mp3_files = [f for f in os.listdir(output_dir) if f.lower().endswith('.mp3')]
+                    if not mp3_files:
+                        print("No mp3 files found to convert.")
+                    else:
+                        mp3_files.sort(key=lambda f: os.path.getmtime(os.path.join(output_dir, f)), reverse=True)
+                        newest_mp3 = os.path.join(output_dir, mp3_files[0])
+                        convert_to_dfpwm(newest_mp3)
 
-            except Exception as e:
-                print(f"Error during download: {e}")
+                except Exception as e:
+                    print(f"Error during download of '{query}': {e}")
+
+        open_folder(output_dir)
+
 
 
 if __name__ == '__main__':
