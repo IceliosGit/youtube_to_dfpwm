@@ -1,6 +1,1 @@
-<<<<<<< HEAD
-directory=C:\Users\anton\Documents\Python\DFPWM\youtube-to-dfpwm\downloaded_dfpwm
-auto_open=true
-=======
 
->>>>>>> 5f4215ac2643fd79061e4b132d1fc90d3d5516ff
