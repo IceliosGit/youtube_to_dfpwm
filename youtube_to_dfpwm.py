@@ -89,7 +89,18 @@ def create_arg_parser():
 
 def main():
     parser = create_arg_parser()
-    args = parser.parse_args()
+    args, unknown = parser.parse_known_args()
+
+    if args.command is None:
+        if unknown:
+            args.command = 'download'
+            args.query = unknown
+            args.directory = None
+        else:
+            parser.print_help()
+            sys.exit(0)
+
+
     
     # If no arguments at all, show help and exit
     if len(sys.argv) == 1:
