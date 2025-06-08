@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='youtube_to_dfpwm',
-    version='1.0.0',
+    version='1.1.0',
     description='Download YouTube audio and convert it to DFPWM format',
     author='IceliosGit',
     py_modules=['youtube_to_dfpwm'],
