@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
+#allow CLI to find python
 
 import os
 import sys
+import argparse
 import subprocess
 import platform
 from yt_dlp import YoutubeDL
 
-CONFIG_FILE = os.path.join(os.path.dirname(__file__), "config.txt")
+CONFIG_FILE = os.path.join(os.path.dirname(__file__), "config.txt") #create a config.txt in the folder where your script is
 
 def load_output_dir():
     if os.path.exists(CONFIG_FILE):
@@ -54,21 +56,33 @@ def convert_to_dfpwm(mp3_path):
     except Exception as e:
         print(f"Unexpected error: {e}")
 
+def create_arg_parser():
+    parser = argparse.ArgumentParser(
+        description="Download YouTube audio and convert to DFPWM"
+    )
+    
+    parser.add_argument(
+        'query',
+        nargs='+',  # Accept one or more words for the search or URL
+        help='YouTube URL or search keywords'
+    )
+    
+    parser.add_argument(
+        '-d', '--directory',
+        type=str,
+        default=None,
+        help='Optional output directory for saving the downloaded files'
+    )
+    
+    return parser
+
+
 def main():
-    # Check command-line arguments
-    args = sys.argv[1:]
-
-    if not args:
-        query = input("Enter YouTube URL or song name: ").strip()
-    else:
-        query = args[0]
-
-    # Use custom path if provided
-    if len(args) > 1:
-        output_dir = os.path.abspath(args[1])
-        save_output_dir(output_dir)  # Save the new path to config
-    else:
-        output_dir = load_output_dir()
+    parser = create_arg_parser()
+    args = parser.parse_args()
+    query = ' '.join(args.query)  # Combine multiple words or URL
+    output_dir = os.path.abspath(args.directory) if args.directory else load_output_dir()
+    save_output_dir(output_dir)
 
     os.makedirs(output_dir, exist_ok=True)
 
