@@ -61,62 +61,92 @@ def create_arg_parser():
         description="Download YouTube audio and convert to DFPWM"
     )
     
-    parser.add_argument(
+    subparsers = parser.add_subparsers(dest='command', required=False)
+
+    # Default download behavior
+    download_parser = subparsers.add_parser('download', help="Download YouTube audio")
+    download_parser.add_argument(
         'query',
-        nargs='+',  # Accept one or more words for the search or URL
+        nargs='+',
         help='YouTube URL or search keywords'
     )
-    
-    parser.add_argument(
+    download_parser.add_argument(
         '-d', '--directory',
         type=str,
         default=None,
-        help='Optional output directory for saving the downloaded files'
+        help='Optional output directory (does NOT change saved default)'
     )
-    
-    return parser
 
+    # Config command to set default directory
+    config_parser = subparsers.add_parser('config', help="Set or view default directory")
+    config_parser.add_argument(
+        '-d', '--directory',
+        type=str,
+        help='Set a new default output directory'
+    )
+
+    return parser
 
 def main():
     parser = create_arg_parser()
     args = parser.parse_args()
-    query = ' '.join(args.query)  # Combine multiple words or URL
-    output_dir = os.path.abspath(args.directory) if args.directory else load_output_dir()
-    save_output_dir(output_dir)
+    
+    # If no arguments at all, show help and exit
+    if len(sys.argv) == 1:
+        parser.print_help()
+        sys.exit(0)
+    
+    if args.command == 'config':
+        if args.directory:
+            path = os.path.abspath(args.directory)
+            save_output_dir(path)
+            print(f"✅ Default directory set to: {path}")
+        else:
+            current = load_output_dir()
+            print(f"📁 Current default directory: {current}")
+        return
 
-    os.makedirs(output_dir, exist_ok=True)
+    # Handle download
+    if args.command == 'download' or args.command is None:
+        query = ' '.join(args.query)
 
-    # yt-dlp options
-    ydl_opts = {
-        'format': 'bestaudio/best',
-        'noplaylist': True,
-        'outtmpl': os.path.join(output_dir, '%(title)s.%(ext)s'),
-        'postprocessors': [{
-            'key': 'FFmpegExtractAudio',
-            'preferredcodec': 'mp3',
-            'preferredquality': '192',
-        }],
-        'quiet': False,
-        'default_search': 'ytsearch1',
-    }
+        if args.directory:
+            output_dir = os.path.abspath(args.directory)
+        else:
+            output_dir = load_output_dir()
 
-    # Download and convert
-    with YoutubeDL(ydl_opts) as ydl:
-        try:
-            ydl.download([query])
-            print(f"\nDownload complete! Saved in: {output_dir}")
-            open_folder(output_dir)
+        os.makedirs(output_dir, exist_ok=True)
 
-            mp3_files = [f for f in os.listdir(output_dir) if f.lower().endswith('.mp3')]
-            if not mp3_files:
-                print("No mp3 files found to convert.")
-            else:
-                mp3_files.sort(key=lambda f: os.path.getmtime(os.path.join(output_dir, f)), reverse=True)
-                newest_mp3 = os.path.join(output_dir, mp3_files[0])
-                convert_to_dfpwm(newest_mp3)
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'noplaylist': True,
+            'outtmpl': os.path.join(output_dir, '%(title)s.%(ext)s'),
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+            'quiet': False,
+            'default_search': 'ytsearch1',
+        }
 
-        except Exception as e:
-            print(f"Error during download: {e}")
+        with YoutubeDL(ydl_opts) as ydl:
+            try:
+                ydl.download([query])
+                print(f"\n✅ Download complete! Saved in: {output_dir}")
+                open_folder(output_dir)
+
+                mp3_files = [f for f in os.listdir(output_dir) if f.lower().endswith('.mp3')]
+                if not mp3_files:
+                    print("⚠️ No mp3 files found to convert.")
+                else:
+                    mp3_files.sort(key=lambda f: os.path.getmtime(os.path.join(output_dir, f)), reverse=True)
+                    newest_mp3 = os.path.join(output_dir, mp3_files[0])
+                    convert_to_dfpwm(newest_mp3)
+
+            except Exception as e:
+                print(f"❌ Error during download: {e}")
+
 
 if __name__ == '__main__':
     main()
